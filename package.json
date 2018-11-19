@@ -4,9 +4,14 @@
   "description": "",
   "main": "handler.js",
   "dependencies": {
+    "@google/maps": "^0.5.5",
+    "aws-sdk": "^2.356.0",
     "axios": "0.18.0",
+    "chrono-node": "^1.3.5",
+    "dynamodb-doc": "^1.0.0",
     "eslint-plugin-node": "^5.0.0",
-    "moment": "2.22.2"
+    "moment": "2.22.2",
+    "rxjs": "^6.3.3"
   },
   "devDependencies": {
     "eslint": "4.0.0",

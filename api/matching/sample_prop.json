@@ -1,0 +1,38 @@
+{
+  "ADDRESS": "2 St Thomas St, Toronto, ON M5S 2Z1, Canada",
+  "BATHS": 1,
+  "BEDS": 1,
+  "DATE_POSTED": "2018-11-14T00:00:00.000Z",
+  "DATE_POSTED_UNIX": 1542153600,
+  "DESCRIPTION": "Nestled in the heart of Yorkville is a lifestyle waiting for you. Place yourself in the epitome of elegance at Two St. Thomas. An expression of timeless architecture, you will enjoy modern amenities, detailed services and an elegant rental living experience. Two St. Thomas is everything exquisite about the Bloor-Yorkville area, designed for you.Two St. Thomas is the picture perfect image of upscale sophistication. Crafted in glass, stone, wood and copper, this modern 26-storey form was built to exude elegance and refinement, which in turn, connects to the unmistakable energy of life at street level. And while Two St. Thomas stands out in the Toronto market for discerning residents, it also blends in beautifully with the aura of the neighbourhood. Residents will enjoy a professionally curated original art collection displayed throughout Two St. Thomas. Building amenities also include 24/7 concierge, fireplace lobby lounge, resident lounge, private dining room with gourmet kitchen, in-house pet spa, electric car charging stations, parcel management system and on-site property management.",
+  "FURNISHED": false,
+  "GPS": {
+    "lat": 43.6680976,
+    "lng": -79.390665
+  },
+  "IMAGES": [
+    "https://online-listing-images-prod.s3.amazonaws.com/f20c315b-f342-4054-a5b9-0d9e8b1fd6ec.PNG",
+    "https://online-listing-images-prod.s3.amazonaws.com/c6abbcf7-64c4-4501-a9c1-2f8bdba9aa40.PNG",
+    "https://online-listing-images-prod.s3.amazonaws.com/8780e898-8968-43d3-9359-8f2aea7427a0.PNG",
+    "https://online-listing-images-prod.s3.amazonaws.com/7387b06f-1017-403f-9c11-93b5318c71c6.PNG",
+    "https://online-listing-images-prod.s3.amazonaws.com/47d45d05-08f0-4a3e-b26c-7b774e71cda9.PNG",
+    "https://online-listing-images-prod.s3.amazonaws.com/a6730433-987e-4045-a85c-68765847acb0.PNG",
+    "https://online-listing-images-prod.s3.amazonaws.com/972a977a-e92c-4a42-bcb1-1125cfa18b71.PNG",
+    "https://online-listing-images-prod.s3.amazonaws.com/07d5429a-3a05-43ca-8dde-14351f32123f.PNG"
+  ],
+  "ITEM_ID": "https%3A%2F%2Fkijiji.ca%2Fv-1-bedroom-apartments-condos%2Fcity-of-toronto%2Fone-bedroom-one-bathroom-for-rent-at-two-st-thomas-2-st%2F1365389970%3FenableSearchNavigationFlag%3Dtrue",
+  "MLS": "private_listing",
+  "MOVEIN": "2018-11-17T12:05:17.750Z",
+  "PARKING": false,
+  "PLACE_ID": "ChIJHVlVELA0K4gRD_XCkXZQxqU",
+  "PRICE": 2650,
+  "SELLER": "Two St. Thomas",
+  "SOURCE": "kijiji",
+  "SQFT": 0,
+  "TITLE": "One Bedroom, One Bathroom For Rent at Two St. Thomas - 2 St....",
+  "URL": "https://kijiji.ca/v-1-bedroom-apartments-condos/city-of-toronto/one-bedroom-one-bathroom-for-rent-at-two-st-thomas-2-st/1365389970?enableSearchNavigationFlag=true",
+  "UTILITIES": [
+    "electricity",
+    "ac"
+  ]
+}

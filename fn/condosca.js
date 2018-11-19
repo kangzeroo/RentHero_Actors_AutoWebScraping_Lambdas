@@ -14,7 +14,7 @@ const RENTAL_LISTINGS = require('../credentials/' + process.env.NODE_ENV + '/dyn
 
 module.exports = function(event, context, callback) {
 
-  console.log('------ kijiji() ------')
+  console.log('------ condosca() ------')
   console.log('------ LAMBDA EVENT OBJECT ------')
   console.log(event)
   console.log(event.body)
@@ -22,26 +22,33 @@ module.exports = function(event, context, callback) {
   const dirty_ad = JSON.parse(event.body)
   // dirty_ad = {}
     /*
-        dirty_ad = { ad_url: 'https://www.kijiji.ca/v-1-bedroom-apartments-condos/city-of-toronto/318-richmond-st-806/1397141511?enableSearchNavigationFlag=true',
-  ad_id: 'Ad ID 1397141511',
-  date_posted: 'November 12, 2018 6:35 AM',
-  poster_name: 'AGGASH',
-  title: 'Downtown Condo in Entertainment District 1 Bedroom ',
-  address: '318 Richmond St W, Toronto, ON M5V 0B4, Canada',
-  price: '$2,100.00',
-  details:
-   [ 'Bathrooms (#)1 bathroom',
-     'Bedrooms (#)1 bedroom',
-     'FurnishedNo',
-     'Pet FriendlyNo' ],
-  description: 'Luxurious Picasso Condo In The Heart Of The Entertainment District. Walk To Vibrant King & Queen St W, C.N Tower , Roger Centre, Air Canada Centre & Financial District. Mins Walk To Restaurant, Ttc, Harbour Front, Ripley\'s Aquarium. 24 Hours Concierge, Yoga & Pilates Studio, Billiards Room, Spa, Media Room, Sauna, Exercise Room.\nFridge, Cook Top With Built-In Oven/Microwave, B/I Dishwasher, Washer/Dryer. No Pets Or Smokers. Note: Hydro To Be Paid By Tenant.',
+        dirty_ad = { ad_url: 'https://condos.ca/toronto/the-ninety-90-broadview-ave/unit-401-E4275451',
+  date_posted: '2018-10-12',
+  poster_name: 'Broker: CHESTNUT PARK REAL ESTATE LIMITED, BROKERAGE',
+  title: 'The Ninety,  Unit 401',
+  sqft: '1000-1199 sqft',
+  movein: 'Immediate',
+  address: '90 Broadview Ave, Toronto',
+  price: 'Rental Price $2,875',
+  description: 'Loft Living At The Ninety. 1 Bedroom + Den. Over 1,000 Sqft W/Spacious Combined Living And Dining Area. Exposed Concrete, Stainless Steel Appliances, Ensuite Washer & Dryer And Gas Stove! Engineered Hardwood Floors, Walk-In Closet, Ensuite Bathroom. Steps To The Best Restaurants, Shops, Bars, Galleries, Ttc, Leslieville, Corktown, Distillery District. Heat Pump Rental $39.74.EXTRAS:Fridge, Stove, Dishwasher, Washer, Dryer, All Elfs, Window Coverings. Heat Pump Rental $39.74.\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\tBroker: CHESTNUT PARK REAL ESTATE LIMITED, BROKERAGE\n\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t      MLS®# E4275451',
   images:
-   [ 'https://i.ebayimg.com/00/s/NjQwWDQ4MA==/z/KucAAOSwpwRb6R7v/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NjQwWDY0MA==/z/nnMAAOSwHSdb6R7g/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NjQwWDY0MA==/z/rnEAAOSwHORb6R72/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NjQwWDY0MA==/z/p5AAAOSwcnJb6R79/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NDY0WDY0MA==/z/V3gAAOSw-pNb6R7o/$_59.JPG' ],
-  phone: '' }
+   [ 'https://condos.ca/public/condo_listing/9a/77/56/02/24fd177_3aa4.jpg',
+     'https://condos.ca/public/condo_listing/9f/77/56/02/24fd17c_7a34.jpg',
+     'https://condos.ca/public/condo_listing/a4/77/56/02/24fd181_53df.jpg',
+     'https://condos.ca/public/condo_listing/a9/77/56/02/24fd186_af64.jpg',
+     'https://condos.ca/public/condo_listing/ae/77/56/02/24fd18b_8241.jpg',
+     'https://condos.ca/public/condo_listing/b3/77/56/02/24fd190_0c69.jpg',
+     'https://condos.ca/public/condo_listing/b8/77/56/02/24fd195_3188.jpg',
+     'https://condos.ca/public/condo_listing/bd/77/56/02/24fd19a_71f8.jpg',
+     'https://condos.ca/public/condo_listing/c2/77/56/02/24fd19f_612c.jpg',
+     'https://condos.ca/public/condo_listing/c7/77/56/02/24fd1a4_a08d.jpg',
+     'https://condos.ca/public/condo_listing/cc/77/56/02/24fd1a9_c3f5.jpg',
+     'https://condos.ca/public/condo_listing/d1/77/56/02/24fd1ae_8c8f.jpg' ],
+  mls_num: 'MLS®# E4275451',
+  beds: 'Beds 1',
+  baths: 'Bath 2',
+  section_amenities: 'Common Rooftop Deck Concierge Public Transit Party Room Visitor Parking BBQs Outdoor Patio / Garden Parking Garage Pet Restrictions Games / Recreation Room Security Guard Enter Phone System',
+  section_utils: 'Air Conditioning Common Element Maintenance Heat Building Insurance Water' }
     */
   console.log('------ LAMBDA CONTEXT OBJECT ------')
   console.log(context)
@@ -116,21 +123,21 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
   const p = new Promise((res, rej) => {
     cleaned_ad.URL = dirty_ad.ad_url
     cleaned_ad.PRICE = WeakNLP.extract_price(dirty_ad.price) || 0
-    cleaned_ad.BEDS = WeakNLP.extract_beds(dirty_ad.details.filter(d => d.toLowerCase().indexOf('bed') > -1)[0]) || 0
-    cleaned_ad.BATHS = WeakNLP.extract_baths(dirty_ad.details.filter(d => d.toLowerCase().indexOf('bath') > -1)[0]) || 0
-    cleaned_ad.FURNISHED = WeakNLP.extract_furnished(`${dirty_ad.description} ${dirty_ad.details.filter(d => d.toLowerCase().indexOf('furnished') > -1)[0]}`) || false
-    cleaned_ad.UTILITIES = WeakNLP.extract_utils(dirty_ad.description) || []
-    cleaned_ad.MOVEIN = WeakNLP.extract_movein(dirty_ad.description) || moment().toISOString()
-    cleaned_ad.SQFT = WeakNLP.extract_sqft(dirty_ad.description) || 0
-    cleaned_ad.PARKING = WeakNLP.extract_parking(dirty_ad.description) || false
-    cleaned_ad.MLS = WeakNLP.extract_mls(dirty_ad.description) || 'private_listing'
+    cleaned_ad.BEDS = WeakNLP.extract_beds(dirty_ad.beds) || 0
+    cleaned_ad.BATHS = WeakNLP.extract_baths(dirty_ad.baths) || 0
+    cleaned_ad.FURNISHED = WeakNLP.extract_furnished(dirty_ad.description) || false
+    cleaned_ad.UTILITIES = WeakNLP.extract_utils(dirty_ad.section_utils) || []
+    cleaned_ad.MOVEIN = WeakNLP.extract_movein(`${dirty_ad.section_utils} ${dirty_ad.movein}`) || moment().toISOString()
+    cleaned_ad.SQFT = WeakNLP.extract_sqft(`${dirty_ad.description} ${dirty_ad.sqft}`) || 0
+    cleaned_ad.PARKING = WeakNLP.extract_parking(`${dirty_ad.description} ${dirty_ad.section_amenities}`) || false
+    cleaned_ad.MLS = WeakNLP.extract_mls(`${dirty_ad.description} ${dirty_ad.mls_num}`) || 'private_listing'
     cleaned_ad.SELLER = dirty_ad.poster_name || 'Private Landlord'
     cleaned_ad.TITLE = dirty_ad.title || cleaned_ad.address
     cleaned_ad.DESCRIPTION = dirty_ad.description || 'For Rent'
-    cleaned_ad.DATE_POSTED = moment(dirty_ad.date_posted, 'MMMM DD, YYYY').toISOString() || moment().toISOString()
-    cleaned_ad.DATE_POSTED_UNIX = moment(dirty_ad.date_posted, 'MMMM DD, YYYY').unix() || moment().unix()
+    cleaned_ad.DATE_POSTED = moment(dirty_ad.date_posted, 'YYYY-MM-DD').toISOString() || moment().toISOString()
+    cleaned_ad.DATE_POSTED_UNIX = moment(dirty_ad.date_posted, 'YYYY-MM-DD').unix() || moment().unix()
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
-    cleaned_ad.SOURCE = 'kijiji'
+    cleaned_ad.SOURCE = 'condos.ca'
     res(cleaned_ad)
   })
   return p
