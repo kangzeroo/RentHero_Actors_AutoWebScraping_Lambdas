@@ -3,44 +3,47 @@
     "avail": {
       "min": 1,
       "ideal": 2,
-      "max": 2,
+      "max": 2
     },
     "random_roommates": true,
-    "max_roommates": 3,
+    "max_roommates": 3
   },
   "budget": {
     "ideal_per_person": 800,
     "max_per_person": 1100,
-    "flexible": true,
+    "flexible": true
   },
   "movein": {
     "ideal_movein": "ISOString",
     "earliest_movein": "ISOString",
-    "latest_movein": "ISOString",
+    "latest_movein": "ISOString"
   },
   "location": {
     "ideal_neighbourhoods": ["Downtown", "Annex"],
-    "flexible": true,
+    "flexible": true
   },
   "commute": [
-    { "destination": "123 Main St, Toronto", "transport": "driving || public transit || walking", "time": "typical_working_hours || non_typical_working_hours" }
+    { "destination_placeids": "ChIJC9nc5rU0K4gRgyoVQ0e7q8c", "transport": "driving || transit || bicycling || walking", "time": "typical_working_hours || non_typical_working_hours", "avoids": ["tolls"], "arrival_time": 435356456 }
   ],
   "nearby": ["nightlife", "cafes"],
   "property": {
-    "acceptable_type": ["condo", "apartment", "house", "basement", "den_or_shared"],
+    "acceptable_types": ["condo", "apartment", "house", "basement", "den_or_shared"],
     "min_sqft": 800,
     "ensuite_bath": false,
     "pets": false,
     "style": ["family", "young_professional", "senior", "student", "immigrant", "luxury"],
-    "amenities": ["gym", "balcony", "parking", "elevator", "pool", "security", "front_desk"],
+    "amenities": ["gym", "balcony", "parking", "elevator", "pool", "security", "front_desk", "ensuite_laundry", "walkin_closet", "seperate_entrance"],
     "decor": ["chic", "cozy", "no_preference"],
     "utilities": ["price_all_inclusive", "available_maybe_inclusive"]
   },
   "personal": {
     "guarantor_needed": true,
     "cosigner_needed": true,
-    "allergies": "",
+    "allergies": ""
   },
+  "destinations": [
+    { "address": "123 Main St", "place_id": "abcdef", "commute_mode": "transit", "gps": { "lat": 45.4767566, "lng": -57.7684464 } }
+  ],
   "posted_in_last_x_days": 5,
   "include_missing_matched": true
 }

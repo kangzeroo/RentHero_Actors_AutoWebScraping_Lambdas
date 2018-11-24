@@ -58,19 +58,19 @@ exports.extract_furnished = function(text) {
       const pre = chars.slice(Math.max(furnished_loc-2, 0), furnished_loc).join(' ')
       const post = chars.slice(furnished_loc, Math.max(furnished_loc+2, chars.length-1)).join(' ')
       // testing for preceding positives
-      if (pre.match(/(fully)?(include)?(inclusive)?/gmi).filter(i => i).length > 0) {
+      if (pre.match(/(fully)?(include)?(inclusive)?/gmi) && pre.match(/(fully)?(include)?(inclusive)?/gmi).filter(i => i).length > 0) {
         is_furnished = true
       }
       // testing for postceding positives
-      if (post.match(/(include)?(inclusive)?/gmi).filter(i => i).length > 0) {
+      if (post.match(/(include)?(inclusive)?/gmi) && post.match(/(include)?(inclusive)?/gmi).filter(i => i).length > 0) {
         is_furnished = true
       }
       // testing for preceding negatives
-      if (pre.match(/(no)?(not)?/gmi).filter(i => i).length > 0) {
+      if (pre.match(/(no)?(not)?/gmi) && pre.match(/(no)?(not)?/gmi).filter(i => i).length > 0) {
         is_furnished = false
       }
       // testing for postceding negatives
-      if (post.match(/(no)?(not)?(\s+n(\s|$))?/gmi).filter(i => i).length > 0) {
+      if (post.match(/(no)?(not)?(\s+n(\s|$))?/gmi) && post.match(/(no)?(not)?(\s+n(\s|$))?/gmi).filter(i => i).length > 0) {
         is_furnished = false
       }
     }
@@ -82,6 +82,7 @@ exports.extract_furnished = function(text) {
 }
 
 exports.extract_utils = function(text) {
+  // utils = electricity, water, heating, ac, insurance, internet
   if (text) {
     const x = text.replace(/[\t\n\r]/gm, ' ').trim()
     const utilities = []
@@ -205,5 +206,23 @@ exports.extract_mls = function(text) {
     return mls_num
   } else {
     return 'private_listing'
+  }
+}
+
+exports.extract_duration = function(text) {
+  if (text) {
+    const x = text.replace(/[\t\n\r]/gm,' ').trim()
+    let lease_length = 12
+    const possible_lengths = x.match(/(\d+\s)(month|year)\s?(lease|duration|contract)?/gmi)
+    if (possible_lengths) {
+      const est_length = possible_lengths[0].match(/\d+/igm)
+      if (est_length) {
+        lease_length = parseInt(est_length)
+      }
+    }
+    console.log(lease_length)
+    return lease_length
+  } else {
+    return 12
   }
 }

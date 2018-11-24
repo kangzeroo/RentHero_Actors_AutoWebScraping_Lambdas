@@ -55,7 +55,7 @@ module.exports = function(event, context, callback) {
 
   const p = new Promise((res, rej) => {
     googleMapsClient.geocode({
-      address: dirty_ad.address
+      address: checkCityAddress(dirty_ad.address, dirty_ad.ad_url)
     }, function(err, response) {
       if (err) {
         console.log('Encountered error');
@@ -124,6 +124,7 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.SQFT = WeakNLP.extract_sqft(dirty_ad.description) || 0
     cleaned_ad.PARKING = WeakNLP.extract_parking(dirty_ad.description) || false
     cleaned_ad.MLS = WeakNLP.extract_mls(dirty_ad.description) || 'private_listing'
+    cleaned_ad.LEASE_LENGTH = WeakNLP.extract_duration(dirty_ad.description) || 12
     cleaned_ad.SELLER = dirty_ad.poster_name || 'Private Landlord'
     cleaned_ad.TITLE = dirty_ad.title || cleaned_ad.address
     cleaned_ad.DESCRIPTION = dirty_ad.description || 'For Rent'
@@ -131,7 +132,26 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.DATE_POSTED_UNIX = moment(dirty_ad.date_posted, 'MMMM DD, YYYY').unix() || moment().unix()
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
     cleaned_ad.SOURCE = 'kijiji'
+    cleaned_ad.SCRAPED_AT = moment().toISOString()
+    if (dirty_ad.ad_url.indexOf('room-rental-roommate') > -1) {
+      cleaned_ad.BEDS = 1
+    }
     res(cleaned_ad)
   })
   return p
+}
+
+const checkCityAddress = function(address, url) {
+  let rightAddress = address + ' Canada'
+  if (url.toLowerCase().indexOf('toronto') > -1) {
+    if (address.toLowerCase().indexOf('toronto') === -1) {
+      rightAddress = address + ', Toronto Canada'
+    }
+  }
+  if (url.toLowerCase().indexOf('waterloo') > -1) {
+    if (address.toLowerCase().indexOf('waterloo') === -1) {
+      rightAddress = address + ', Waterloo Canada'
+    }
+  }
+  return rightAddress
 }
