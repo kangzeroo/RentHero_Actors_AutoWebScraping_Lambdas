@@ -63,6 +63,30 @@ functions:
       DEMO_ACCESS_KEY: ${file(./mock_creds/${self:provider.stage}/demo_creds.js):vars.DEMO_ACCESS_KEY}
       NODE_ENV: ${self:provider.stage}
 
+  zolo:
+    handler: handler.zolo
+    timeout: 120
+    environment:
+      DEMO_ACCESS_KEY: ${file(./mock_creds/${self:provider.stage}/demo_creds.js):vars.DEMO_ACCESS_KEY}
+      NODE_ENV: ${self:provider.stage}
+
+  condosca:
+    handler: handler.condosca
+    timeout: 120
+    environment:
+      DEMO_ACCESS_KEY: ${file(./mock_creds/${self:provider.stage}/demo_creds.js):vars.DEMO_ACCESS_KEY}
+      NODE_ENV: ${self:provider.stage}
+
+  getListings:
+    handler: handler.getListings
+    timeout: 120
+    environment:
+      NODE_ENV: ${self:provider.stage}
+    events:
+      - http:
+          path: get-listings
+          method: post
+          cors: true # <-- CORS!
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
