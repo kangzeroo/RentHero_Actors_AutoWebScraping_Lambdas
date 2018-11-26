@@ -11,6 +11,7 @@ const uuid = require('uuid')
 const backupImages = require('../api/s3/aws_s3').backupImages
 const insertIntel = require('../DynamoDB/general_insertions').insertIntel
 const RENTAL_LISTINGS = require('../credentials/' + process.env.NODE_ENV + '/dynamodb_tablenames').RENTAL_LISTINGS
+const insertAddressComponents = require('../api/rds/rds_api').insertAddressComponents
 
 module.exports = function(event, context, callback) {
 
@@ -71,11 +72,23 @@ module.exports = function(event, context, callback) {
       } else {
         const results = response.json.results
         if (results.length > 0) {
-          cleaned_ad.ADDRESS = results[0].formatted_address
-          cleaned_ad.GPS = results[0].geometry.location
-          cleaned_ad.PLACE_ID = results[0].place_id
-          console.log(cleaned_ad)
-          res(cleaned_ad)
+          insertAddressComponents(results[0].address_components, results[0].formatted_address, results[0].geometry.location, results[0].place_id)
+            .then((addressResults) => {
+              cleaned_ad.ADDRESS = results[0].formatted_address
+              cleaned_ad.GPS = results[0].geometry.location
+              cleaned_ad.PLACE_ID = results[0].place_id
+              cleaned_ad.ADDRESS_ID = addressResults.address_id
+              console.log('Cleaned_ad: ', cleaned_ad)
+              res(cleaned_ad)
+            })
+            .catch((err) => {
+              console.log('ERROR: ', err)
+              cleaned_ad.ADDRESS = results[0].formatted_address
+              cleaned_ad.GPS = results[0].geometry.location
+              cleaned_ad.PLACE_ID = results[0].place_id
+              console.log(cleaned_ad)
+              res(cleaned_ad)
+            })
         } else {
           rej('No address results found')
         }
