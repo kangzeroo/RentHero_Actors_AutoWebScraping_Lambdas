@@ -28,7 +28,7 @@ module.exports.insertAddressComponents = function(address_components, formatted_
 
 module.exports.getAddressesWithinRadius = function(lat, lng, radius) {
   const p = new Promise((res, rej) => {
-    axios.get(`${RDS_MS}/get_address_within_radius`, { lat: lat, lng: lng, radius: radius })
+    axios.post(`${RDS_MS}/get_address_within_radius`, { lat: lat, lng: lng, radius: radius })
       .then((data) => {
         res(data.data)
       })
