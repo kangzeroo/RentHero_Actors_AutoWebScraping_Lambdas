@@ -18,8 +18,9 @@ module.exports = function(event, context, callback) {
 
   getAddressesWithinRadius(body.destinations[0].gps.lat, body.destinations[0].gps.lng, body.radius)
     .then((data) => {
+      console.log('--------> getAddressesWithinRadius')
       console.log(data)
-      return match_properties()
+      return match_properties(body, data.map(d => d.address_id))
     })
     .then((data) => {
       return Promise.resolve(data)

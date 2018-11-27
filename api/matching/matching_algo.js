@@ -55,12 +55,19 @@ const sortMatches = require('../nlp/weak_sorting').sortMatches
     }
 */
 
-exports.match_properties = (prefs) => {
+exports.match_properties = (prefs, address_ids) => {
   console.log(prefs)
   console.log(typeof prefs)
   console.log('Scanning DynamoDB...')
   const date_since = moment().unix() - 60*60*24*prefs.posted_in_last_x_days
-  const params = {
+  let inObjects = {};
+  let index = 0;
+  address_ids.forEach(function(address_id) {
+      index++;
+      let inKey = ":addr_id_"+index;
+      inObjects[inKey.toString()] = address_id;
+  })
+  let params = {
     "TableName": RENTAL_LISTINGS,
     "FilterExpression": `
       #DATE_POSTED_UNIX > :date_posted_unix
@@ -74,13 +81,24 @@ exports.match_properties = (prefs) => {
     "ExpressionAttributeNames": {
       "#DATE_POSTED_UNIX": "DATE_POSTED_UNIX",
       "#BEDS": "BEDS",
-      "#PRICE": "PRICE"
+      "#PRICE": "PRICE",
     },
     "ExpressionAttributeValues": {
       ":date_posted_unix": date_since,
       ":min_beds": prefs.rooms.avail.min,
       ":max_beds": prefs.rooms.avail.max,
       ":budget": prefs.budget.max_per_person,
+    }
+  }
+  if (address_ids && address_ids.length > 0) {
+    params.FilterExpression = params.FilterExpression + ` AND #ADDRESS_ID IN (${Object.keys(inObjects).toString()})`
+    params.ExpressionAttributeNames["#ADDRESS_ID"] = "ADDRESS_ID"
+    params.IndexName = "By_Address_ID"
+    for (var property in inObjects) {
+        if (inObjects.hasOwnProperty(property)) {
+            // do stuff
+            params.ExpressionAttributeValues[property] = inObjects[property]
+        }
     }
   }
   console.log(params)
