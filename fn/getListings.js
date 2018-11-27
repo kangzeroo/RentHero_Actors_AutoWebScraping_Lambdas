@@ -1,5 +1,6 @@
 const moment = require('moment')
 const match_properties = require('../api/matching/matching_algo').match_properties
+const getAddressesWithinRadius = require('../api/rds/rds_api').getAddressesWithinRadius
 const RENTAL_LISTINGS = require('../credentials/' + process.env.NODE_ENV + '/dynamodb_tablenames').RENTAL_LISTINGS
 
 // NODE_ENV=development node fn/getListings.js
@@ -10,11 +11,16 @@ module.exports = function(event, context, callback) {
   console.log(event)
   console.log(event.body)
   console.log(typeof event.body)
+  const body = JSON.parse(event.body)
   // console.log(JSON.parse(event.body))
   console.log('------ LAMBDA CONTEXT OBJECT ------')
   console.log(context)
 
-  match_properties(JSON.parse(event.body))
+  getAddressesWithinRadius(body.destinations[0].gps.lat, body.destinations[0].gps.lng, body.radius)
+    .then((data) => {
+      console.log(data)
+      return match_properties()
+    })
     .then((data) => {
       return Promise.resolve(data)
     })
@@ -36,5 +42,4 @@ module.exports = function(event, context, callback) {
       console.log(err)
       callback(err)
     })
-
 }

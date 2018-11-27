@@ -45,5 +45,6 @@
     { "address": "123 Main St", "place_id": "abcdef", "commute_mode": "transit", "gps": { "lat": 45.4767566, "lng": -57.7684464 } }
   ],
   "posted_in_last_x_days": 5,
-  "include_missing_matched": true
+  "include_missing_matched": true,
+  "radius": 20000
 }

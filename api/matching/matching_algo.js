@@ -50,7 +50,8 @@ const sortMatches = require('../nlp/weak_sorting').sortMatches
         allergies: '',
       },
       posted_in_last_x_days: 5,
-      include_missing_matched: true
+      include_missing_matched: true,
+      radius: 20000
     }
 */
 
@@ -148,7 +149,8 @@ exports.match_properties = (prefs) => {
 //     allergies: '',
 //   },
 //   posted_in_last_x_days: 5,
-//   include_missing_matched: true
+//   include_missing_matched: true,
+//   radius: 20000
 // }
 // match_properties(myPrefs)
 
