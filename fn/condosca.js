@@ -151,6 +151,7 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.DATE_POSTED = moment(dirty_ad.date_posted, 'YYYY-MM-DD').toISOString() || moment().toISOString()
     cleaned_ad.DATE_POSTED_UNIX = moment(dirty_ad.date_posted, 'YYYY-MM-DD').unix() || moment().unix()
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
+    cleaned_ad.REFERENCE_ID = uuid.v4()
     cleaned_ad.SOURCE = 'condos.ca'
     cleaned_ad.SCRAPED_AT = moment().toISOString()
     res(cleaned_ad)

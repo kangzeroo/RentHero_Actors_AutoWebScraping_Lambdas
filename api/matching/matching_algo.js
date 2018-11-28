@@ -77,11 +77,14 @@ exports.match_properties = (prefs, address_ids) => {
       #BEDS <= :max_beds
       AND
       #PRICE <= :budget
+      AND
+      attribute_exists (#REFERENCE_ID)
     `,
     "ExpressionAttributeNames": {
       "#DATE_POSTED_UNIX": "DATE_POSTED_UNIX",
       "#BEDS": "BEDS",
       "#PRICE": "PRICE",
+      "#REFERENCE_ID": "REFERENCE_ID"
     },
     "ExpressionAttributeValues": {
       ":date_posted_unix": date_since,

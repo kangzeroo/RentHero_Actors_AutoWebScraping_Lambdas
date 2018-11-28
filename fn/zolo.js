@@ -164,6 +164,7 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.DATE_POSTED = moment(dirty_ad.date_posted, 'MMM DD, YYYY').toISOString() || moment().toISOString()
     cleaned_ad.DATE_POSTED_UNIX = moment(dirty_ad.date_posted, 'MMM DD, YYYY').unix() || moment().unix()
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
+    cleaned_ad.REFERENCE_ID = uuid.v4()
     cleaned_ad.SOURCE = 'zolo'
     cleaned_ad.SCRAPED_AT = moment().toISOString()
     res(cleaned_ad)
