@@ -90,7 +90,7 @@ exports.match_properties = (prefs, address_ids) => {
       ":date_posted_unix": date_since,
       ":min_beds": prefs.rooms.avail.min,
       ":max_beds": prefs.rooms.avail.max,
-      ":budget": prefs.budget.max_per_person + 1000,
+      ":budget": prefs.budget.max_per_person * prefs.rooms.max_roommates + 1000,
     }
   }
   if (address_ids && address_ids.length > 0) {
