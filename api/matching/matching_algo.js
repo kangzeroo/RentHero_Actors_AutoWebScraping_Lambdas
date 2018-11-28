@@ -62,7 +62,7 @@ exports.match_properties = (prefs, address_ids) => {
   const date_since = moment().unix() - 60*60*24*prefs.posted_in_last_x_days
   let inObjects = {};
   let index = 0;
-  address_ids.forEach(function(address_id) {
+  address_ids.slice(0, Math.min(50, address_ids.length - 1)).forEach(function(address_id) {
       index++;
       let inKey = ":addr_id_"+index;
       inObjects[inKey.toString()] = address_id;
@@ -87,13 +87,13 @@ exports.match_properties = (prefs, address_ids) => {
       ":date_posted_unix": date_since,
       ":min_beds": prefs.rooms.avail.min,
       ":max_beds": prefs.rooms.avail.max,
-      ":budget": prefs.budget.max_per_person,
+      ":budget": prefs.budget.max_per_person + 1000,
     }
   }
   if (address_ids && address_ids.length > 0) {
     params.FilterExpression = params.FilterExpression + ` AND #ADDRESS_ID IN (${Object.keys(inObjects).toString()})`
     params.ExpressionAttributeNames["#ADDRESS_ID"] = "ADDRESS_ID"
-    params.IndexName = "By_Address_ID"
+    // params.IndexName = "By_Address_ID"
     for (var property in inObjects) {
         if (inObjects.hasOwnProperty(property)) {
             // do stuff
@@ -105,15 +105,16 @@ exports.match_properties = (prefs, address_ids) => {
   let matches = []
   return scan_dynamodb(params)
           .then((data) => {
-            // console.log(data)
-            return Promise.all(data.map(d => scoreMatch(d, prefs)))
+            console.log(data)
+            // return Promise.all(data.map(d => scoreMatch(d, prefs)))
+            return Promise.all(data.map(d => Promise.resolve(d)))
           })
-          .then((data) => {
+          // .then((data) => {
             // console.log(data)
-            return sortMatches(data)
-          })
+          //   return sortMatches(data)
+          // })
           .then((data) => {
-            // console.log(data)
+            console.log(data)
             matches = data
             return Promise.resolve(matches)
           })
