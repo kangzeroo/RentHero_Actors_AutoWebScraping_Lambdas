@@ -87,6 +87,17 @@ functions:
           path: get-listings
           method: post
           cors: true # <-- CORS!
+
+  getListingsByRef:
+    handler: handler.getListingsByRef
+    timeout: 120
+    environment:
+      NODE_ENV: ${self:provider.stage}
+    events:
+      - http:
+          path: get-listings-by-ref
+          method: post
+          cors: true # <-- CORS!
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

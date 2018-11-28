@@ -109,13 +109,13 @@ exports.match_properties = (prefs, address_ids) => {
   return scan_dynamodb(params)
           .then((data) => {
             console.log(data)
-            // return Promise.all(data.map(d => scoreMatch(d, prefs)))
-            return Promise.all(data.map(d => Promise.resolve(d)))
+            return Promise.all(data.map(d => scoreMatch(d, prefs)))
+            // return Promise.all(data.map(d => Promise.resolve(d)))
           })
-          // .then((data) => {
-            // console.log(data)
-          //   return sortMatches(data)
-          // })
+          .then((data) => {
+            console.log(data)
+            return sortMatches(data)
+          })
           .then((data) => {
             console.log(data)
             matches = data
