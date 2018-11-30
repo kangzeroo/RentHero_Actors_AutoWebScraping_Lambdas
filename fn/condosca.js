@@ -76,6 +76,7 @@ module.exports = function(event, context, callback) {
             .then((addressResults) => {
               cleaned_ad.ADDRESS = results[0].formatted_address
               cleaned_ad.GPS = results[0].geometry.location
+              cleaned_ad.GEO_POINT = `${results[0].geometry.location.lat},${results[0].geometry.location.lng}`
               cleaned_ad.PLACE_ID = results[0].place_id
               cleaned_ad.ADDRESS_ID = addressResults.address_id
               console.log('Cleaned_ad: ', cleaned_ad)
@@ -85,6 +86,7 @@ module.exports = function(event, context, callback) {
               console.log('ERROR: ', err)
               cleaned_ad.ADDRESS = results[0].formatted_address
               cleaned_ad.GPS = results[0].geometry.location
+              cleaned_ad.GEO_POINT = `${results[0].geometry.location.lat},${results[0].geometry.location.lng}`
               cleaned_ad.PLACE_ID = results[0].place_id
               console.log(cleaned_ad)
               res(cleaned_ad)
@@ -140,7 +142,10 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.BATHS = WeakNLP.extract_baths(dirty_ad.baths) || 0
     cleaned_ad.FURNISHED = WeakNLP.extract_furnished(dirty_ad.description) || false
     cleaned_ad.UTILITIES = WeakNLP.extract_utils(dirty_ad.section_utils) || []
-    cleaned_ad.MOVEIN = WeakNLP.extract_movein(`${dirty_ad.section_utils} ${dirty_ad.movein}`) || moment().toISOString()
+    cleaned_ad.MOVEIN = WeakNLP.extract_movein(`${dirty_ad.description} ${dirty_ad.movein}`) || moment().toISOString()
+    if (isEmpty(cleaned_ad.MOVEIN)) {
+      cleaned_ad.MOVEIN = moment().toISOString()
+    }
     cleaned_ad.SQFT = WeakNLP.extract_sqft(`${dirty_ad.description} ${dirty_ad.sqft}`) || 0
     cleaned_ad.PARKING = WeakNLP.extract_parking(`${dirty_ad.description} ${dirty_ad.section_amenities}`) || false
     cleaned_ad.MLS = WeakNLP.extract_mls(`${dirty_ad.description} ${dirty_ad.mls_num}`) || 'private_listing'
@@ -154,6 +159,7 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.REFERENCE_ID = uuid.v4()
     cleaned_ad.SOURCE = 'condos.ca'
     cleaned_ad.SCRAPED_AT = moment().toISOString()
+    cleaned_ad.SCRAPED_AT_UNIX = moment().unix()
     res(cleaned_ad)
   })
   return p
@@ -172,4 +178,12 @@ const checkCityAddress = function(address, url) {
     }
   }
   return rightAddress
+}
+
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
 }
