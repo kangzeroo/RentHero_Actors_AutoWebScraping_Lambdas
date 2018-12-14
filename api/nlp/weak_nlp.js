@@ -119,9 +119,9 @@ exports.extract_utils = function(text) {
     }
     console.log(utilities)
     console.log(text)
-    return utilities
+    return utilities.join(', ')
   } else {
-    return []
+    return 'none'
   }
 }
 
@@ -158,8 +158,8 @@ exports.extract_sqft = function(text) {
   if (text) {
     const x = text.replace(/[\t\n\r]/gm,' ').trim()
     let sqft = 0
-    if (x.match(/(\d+)\s?(sqft|square feet|sq-ft|sq\.ft)/gmi)) {
-      const size_str = x.match(/(\d+)\s?(sqft|square feet|sq-ft|sq\.ft)/gmi).join(' ')
+    if (x.match(/(\d+)\s?(sqft|square feet|ft²|sq-ft|sq\.ft)/gmi)) {
+      const size_str = x.match(/(\d+)\s?(sqft|square feet|ft²|sq-ft|sq\.ft)/gmi).join(' ')
       const a = size_str.match(/(\d+)/gmi)
       if (a) {
         sqft = a[0]
@@ -224,5 +224,16 @@ exports.extract_duration = function(text) {
     return lease_length
   } else {
     return 12
+  }
+}
+
+exports.extract_brokerage = function(text) {
+  if (text) {
+    const found_brokerage_mentions = text.match(/(remax)|(re\/max)|(realty)|(brokerage)|(sutton)|(century)|(keller)|(coldwell)/gmi)
+    if (found_brokerage_mentions) {
+      return 'unknown_mls'
+    } else {
+      return 'private_listing'
+    }
   }
 }

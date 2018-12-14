@@ -9,6 +9,7 @@ const googleMapsClient = require('@google/maps').createClient({
 const WeakNLP = require('../api/nlp/weak_nlp')
 const backupImages = require('../api/s3/aws_s3').backupImages
 const insertIntel = require('../DynamoDB/general_insertions').insertIntel
+const query_dynamodb = require('../DynamoDB/general_queryable').query_dynamodb
 const uuid = require('uuid')
 const RENTAL_LISTINGS = require('../credentials/' + process.env.NODE_ENV + '/dynamodb_tablenames').RENTAL_LISTINGS
 const insertAddressComponents = require('../api/rds/rds_api').insertAddressComponents
@@ -75,48 +76,90 @@ module.exports = function(event, context, callback) {
   }
 
   const p = new Promise((res, rej) => {
-    googleMapsClient.geocode({
-      address: checkCityAddress(dirty_ad.address, dirty_ad.ad_url)
-    }, function(err, response) {
-      if (err) {
-        console.log('Encountered error');
-        console.log(err);
-        rej(err)
-      } else {
-        const results = response.json.results
-        if (results.length > 0) {
-          insertAddressComponents(results[0].address_components, results[0].formatted_address, results[0].geometry.location, results[0].place_id)
-            .then((addressResults) => {
-              cleaned_ad.ADDRESS = results[0].formatted_address
-              cleaned_ad.GPS = results[0].geometry.location
-              cleaned_ad.GEO_POINT = `${results[0].geometry.location.lat},${results[0].geometry.location.lng}`
-              cleaned_ad.PLACE_ID = results[0].place_id
-              cleaned_ad.ADDRESS_ID = addressResults.address_id
-              console.log('Cleaned_ad: ', cleaned_ad)
-              res(cleaned_ad)
-            })
-            .catch((err) => {
-              console.log('ERROR: ', err)
-              cleaned_ad.ADDRESS = results[0].formatted_address
-              cleaned_ad.GPS = results[0].geometry.location
-              cleaned_ad.GEO_POINT = `${results[0].geometry.location.lat},${results[0].geometry.location.lng}`
-              cleaned_ad.PLACE_ID = results[0].place_id
-              console.log(cleaned_ad)
-              res(cleaned_ad)
+    const params = {
+      "TableName": RENTAL_LISTINGS,
+      "KeyConditionExpression": "#ITEM_ID = :item_id",
+      "IndexName": "By_Item_ID",
+      "ExpressionAttributeNames": {
+        "#ITEM_ID": "ITEM_ID",
+      },
+      "ExpressionAttributeValues": {
+        ":item_id": encodeURIComponent(dirty_ad.ad_url),
+      }
+    }
+    query_dynamodb(params)
+      .then((Items) => {
+        console.log('CHECKED IF ALREADY EXISTS...')
+        console.log(Items)
+        if (Items.length === 0) {
+            googleMapsClient.geocode({
+              address: checkCityAddress(dirty_ad.address, dirty_ad.ad_url)
+            }, function(err, response) {
+              if (err) {
+                console.log('Encountered error');
+                console.log(err);
+                rej(err)
+              } else {
+                const results = response.json.results
+                if (results.length > 0) {
+                  insertAddressComponents(results[0].address_components, results[0].formatted_address, results[0].geometry.location, results[0].place_id)
+                    .then((addressResults) => {
+                      cleaned_ad.ADDRESS = results[0].formatted_address
+                      cleaned_ad.GPS = results[0].geometry.location
+                      cleaned_ad.GEO_POINT = `${results[0].geometry.location.lat},${results[0].geometry.location.lng}`
+                      cleaned_ad.PLACE_ID = results[0].place_id
+                      cleaned_ad.ADDRESS_ID = addressResults.address_id
+                      console.log('Cleaned_ad: ', cleaned_ad)
+                      res({
+                        exists: false,
+                        cleaned_ad
+                      })
+                    })
+                    .catch((err) => {
+                      console.log('ERROR: ', err)
+                      cleaned_ad.ADDRESS = results[0].formatted_address
+                      cleaned_ad.GPS = results[0].geometry.location
+                      cleaned_ad.GEO_POINT = `${results[0].geometry.location.lat},${results[0].geometry.location.lng}`
+                      cleaned_ad.PLACE_ID = results[0].place_id
+                      console.log(cleaned_ad)
+                      rej(err)
+                    })
+                } else {
+                  rej('No address results found')
+                }
+              }
             })
         } else {
-          rej('No address results found')
+          res({
+            exists: true,
+          })
         }
-      }
-    })
+      })
   })
 
-  p.then(() => {
-    console.log('Done the geo-querying!')
-    return backupImages(dirty_ad.images)
+  p.then((result) => {
+    if (result.exists) {
+      console.log('This ad already exists!')
+      const response = {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: 'Ad already exists',
+          data: cleaned_ad,
+        }),
+      }
+      callback(null, response)
+    } else {
+      console.log('Done the geo-querying!')
+      return backupImages(dirty_ad.images)
+    }
   })
   .then((backedup_images) => {
-    cleaned_ad.IMAGES = backedup_images
+    cleaned_ad.IMAGES = backedup_images.map(img => {
+      return {
+        url: img,
+        caption: 'no caption'
+      }
+    })
     console.log('Done the image backups!')
     return extractDetails(cleaned_ad, dirty_ad)
   })
@@ -154,7 +197,7 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.BEDS = WeakNLP.extract_beds(dirty_ad.beds) || 0
     cleaned_ad.BATHS = WeakNLP.extract_baths(dirty_ad.baths) || 0
     cleaned_ad.FURNISHED = WeakNLP.extract_furnished(`${dirty_ad.description} ${dirty_ad.section_rental}`) || false
-    cleaned_ad.UTILITIES = WeakNLP.extract_utils(`${dirty_ad.description} ${dirty_ad.section_fees}`) || []
+    cleaned_ad.UTILITIES = WeakNLP.extract_utils(`${dirty_ad.description} ${dirty_ad.section_fees}`) || 'none'
     cleaned_ad.MOVEIN = WeakNLP.extract_movein(`${dirty_ad.description} ${dirty_ad.section_fees}`) || moment().toISOString()
     if (isEmpty(cleaned_ad.MOVEIN)) {
       cleaned_ad.MOVEIN = moment().toISOString()

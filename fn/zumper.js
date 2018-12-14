@@ -3,50 +3,50 @@ const PROJECT_ID = require('../credentials/' + process.env.NODE_ENV + '/ai-sandb
 const API_KEY = require('../credentials/' + process.env.NODE_ENV + '/ai-sandbox-api-key.json').key
 const PROJECT_CREDS_PATH = __dirname + '/../credentials/' + process.env.NODE_ENV + '/ai-sandbox-creds.json'
 const PROJECT_CREDS = require(PROJECT_CREDS_PATH)
-console.log(API_KEY)
-const gmaps = require('@google/maps')
-const googleMapsClient = gmaps.createClient({
+const googleMapsClient = require('@google/maps').createClient({
   key: API_KEY
 })
 const WeakNLP = require('../api/nlp/weak_nlp')
-const uuid = require('uuid')
 const backupImages = require('../api/s3/aws_s3').backupImages
 const insertIntel = require('../DynamoDB/general_insertions').insertIntel
 const query_dynamodb = require('../DynamoDB/general_queryable').query_dynamodb
+const uuid = require('uuid')
 const RENTAL_LISTINGS = require('../credentials/' + process.env.NODE_ENV + '/dynamodb_tablenames').RENTAL_LISTINGS
 const insertAddressComponents = require('../api/rds/rds_api').insertAddressComponents
 
 module.exports = function(event, context, callback) {
 
-  console.log('------ kijiji() ------')
+  console.log('------ zumper() ------')
   console.log('------ LAMBDA EVENT OBJECT ------')
   console.log(event)
   console.log(event.body)
   console.log(JSON.parse(event.body))
   const dirty_ad = JSON.parse(event.body)
-  // dirty_ad = {}
+
     /*
-        dirty_ad = { ad_url: 'https://www.kijiji.ca/v-1-bedroom-apartments-condos/city-of-toronto/318-richmond-st-806/1397141511?enableSearchNavigationFlag=true',
-  ad_id: 'Ad ID 1397141511',
-  date_posted: 'November 12, 2018 6:35 AM',
-  poster_name: 'AGGASH',
-  title: 'Downtown Condo in Entertainment District 1 Bedroom ',
-  address: '318 Richmond St W, Toronto, ON M5V 0B4, Canada',
-  price: '$2,100.00',
-  details:
-   [ 'Bathrooms (#)1 bathroom',
-     'Bedrooms (#)1 bedroom',
-     'FurnishedNo',
-     'Pet FriendlyNo' ],
-  description: 'Luxurious Picasso Condo In The Heart Of The Entertainment District. Walk To Vibrant King & Queen St W, C.N Tower , Roger Centre, Air Canada Centre & Financial District. Mins Walk To Restaurant, Ttc, Harbour Front, Ripley\'s Aquarium. 24 Hours Concierge, Yoga & Pilates Studio, Billiards Room, Spa, Media Room, Sauna, Exercise Room.\nFridge, Cook Top With Built-In Oven/Microwave, B/I Dishwasher, Washer/Dryer. No Pets Or Smokers. Note: Hydro To Be Paid By Tenant.',
-  images:
-   [ 'https://i.ebayimg.com/00/s/NjQwWDQ4MA==/z/KucAAOSwpwRb6R7v/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NjQwWDY0MA==/z/nnMAAOSwHSdb6R7g/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NjQwWDY0MA==/z/rnEAAOSwHORb6R72/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NjQwWDY0MA==/z/p5AAAOSwcnJb6R79/$_59.JPG',
-     'https://i.ebayimg.com/00/s/NDY0WDY0MA==/z/V3gAAOSw-pNb6R7o/$_59.JPG' ],
-  phone: '' }
+        dirty_ad = {
+            ad_url: 'https://www.zumper.com/apartments-for-rent/33810577/1-bedroom-the-village-toronto-on',
+            images:
+             [ 'https://d37lj287rvypnj.cloudfront.net/254942037/1280x960',
+               'https://d37lj287rvypnj.cloudfront.net/259228518/1280x960' ],
+           address: '42 Charles Street East #3102, Toronto ON',
+           contact: 'Andrew Masters (RE/MAX URBAN TORONTO 416 856 4234)',
+           price: '$2,500',
+            descs:
+             [
+                '1 Bed 2 Bathrooms 550 ft² No pets 51 Minutes Ago',
+
+               '$2200 / 1br - 550ft2 - NEW 42 CHARLES ST E #3102, 1 BED, 2 BATHS, WRAP-AROUND BALCONY, DOWNTOWN TORONTO (Bloor/Yonge) Stunning Luxurious Casa 2 one bed Condo At Yonge/Bloor! Perfect Location In The Yorkville Neighbourhood. Amazing View From Southeast Corner Unit With Spacious Wrap-Around Balcony, 9" Ceilings, Floor To Ceiling Windows, Designer Kitchens With European Appliances, Marble Countertop In Both Washroom. Excellent Facilities. 24-Hour Concierge. Infinity Pool, Near 2 Subway Lines! Walking Distance From U Of T, Fine Dining & Entertainment District And Much More! Includes:Fridge, Stove, Hood/Microwave, Washer/Dryer, Dishwasher, All Existing Lighting Fixtures and Window Coverings.  High floor with amazing views! Condos Designed By Award-Winning Architects. Steps To Subway and Bloor Street/Yonge Street Shopping, Restaurants, Most convenient location, close to everything!! 20Ft Lobby, State Of The Art Amenities Including Fully Equipped Gym, Rooftop Lounge,Outdoor Infinity Pool, 24 hours Concierge and much more!  Ready to move in immediately!  Contact : Narayan T.O. Condos Realty Inc. Cell: 647 537 5752 Lease Terms Minimum One Year Available Now',
+
+               'Apartment Contact Narayan (T.O. Condos Realty Inc.) Phone: (647) 537-5752',
+
+               'UNIT Air Conditioning Balcony Central Heat Dishwasher Hardwood Floor High Ceilings In Unit Laundry',
+
+               'BUILDING Business Center Concierge Service Elevator Fitness Center Garage Parking Onsite Management Outdoor Space Package Service Residents Lounge Roof Deck Secured Entry Storage Swimming Pool'
+            ],
+       }
     */
+
   console.log('------ LAMBDA CONTEXT OBJECT ------')
   console.log(context)
 
@@ -74,7 +74,7 @@ module.exports = function(event, context, callback) {
         console.log('CHECKED IF ALREADY EXISTS...')
         console.log(Items)
         if (Items.length === 0) {
-            googleMapsClient.geocode({
+          googleMapsClient.geocode({
               address: dirty_ad.address
             }, function(err, response) {
               if (err) {
@@ -83,11 +83,6 @@ module.exports = function(event, context, callback) {
                 rej(err)
               } else {
                 const results = response.json.results
-                console.log(results[0])
-                console.log(results[0].address_components)
-                console.log(results[0].formatted_address)
-                console.log(results[0].geometry.location)
-                console.log(results[0].place_id)
                 if (results.length > 0) {
                   insertAddressComponents(results[0].address_components, results[0].formatted_address, results[0].geometry.location, results[0].place_id)
                     .then((addressResults) => {
@@ -121,6 +116,10 @@ module.exports = function(event, context, callback) {
             exists: true,
           })
         }
+      })
+      .catch((err) => {
+        console.log(err)
+        rej(err)
       })
   })
 
@@ -181,49 +180,31 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
   const p = new Promise((res, rej) => {
     cleaned_ad.URL = dirty_ad.ad_url
     cleaned_ad.PRICE = WeakNLP.extract_price(dirty_ad.price) || 0
-    cleaned_ad.BEDS = WeakNLP.extract_beds(dirty_ad.details.filter(d => d.toLowerCase().indexOf('bed') > -1)[0]) || 0
-    cleaned_ad.BATHS = WeakNLP.extract_baths(dirty_ad.details.filter(d => d.toLowerCase().indexOf('bath') > -1)[0]) || 0
-    cleaned_ad.FURNISHED = WeakNLP.extract_furnished(`${dirty_ad.description} ${dirty_ad.details.filter(d => d.toLowerCase().indexOf('furnished') > -1)[0]}`) || false
-    cleaned_ad.UTILITIES = WeakNLP.extract_utils(dirty_ad.description) || 'none'
-    cleaned_ad.MOVEIN = WeakNLP.extract_movein(dirty_ad.description) || moment().toISOString()
+    cleaned_ad.BEDS = WeakNLP.extract_beds(dirty_ad.descs.slice(0,1).join('. ')) || 0
+    cleaned_ad.BATHS = WeakNLP.extract_baths(dirty_ad.descs.slice(0,1).join('. ')) || 0
+    cleaned_ad.FURNISHED = WeakNLP.extract_furnished(dirty_ad.descs.join('. ')) || false
+    cleaned_ad.UTILITIES = WeakNLP.extract_utils(dirty_ad.descs.join('. ')) || 'none'
+    cleaned_ad.MOVEIN = WeakNLP.extract_movein(dirty_ad.descs.join('. ')) || moment().toISOString()
     if (isEmpty(cleaned_ad.MOVEIN)) {
       cleaned_ad.MOVEIN = moment().toISOString()
     }
-    cleaned_ad.SQFT = WeakNLP.extract_sqft(dirty_ad.description) || 0
-    cleaned_ad.PARKING = WeakNLP.extract_parking(dirty_ad.description) || false
-    cleaned_ad.MLS = WeakNLP.extract_mls(dirty_ad.description) || 'private_listing'
-    cleaned_ad.LEASE_LENGTH = WeakNLP.extract_duration(dirty_ad.description) || 12
-    cleaned_ad.SELLER = dirty_ad.poster_name || 'Private Landlord'
-    cleaned_ad.TITLE = dirty_ad.title || cleaned_ad.address
-    cleaned_ad.DESCRIPTION = dirty_ad.description || 'For Rent'
-    cleaned_ad.DATE_POSTED = moment(dirty_ad.date_posted, 'MMMM DD, YYYY').toISOString() || moment().toISOString()
-    cleaned_ad.DATE_POSTED_UNIX = moment(dirty_ad.date_posted, 'MMMM DD, YYYY').unix() || moment().unix()
+    cleaned_ad.SQFT = WeakNLP.extract_sqft(dirty_ad.descs.join('. ')) || 0
+    cleaned_ad.PARKING = WeakNLP.extract_parking(dirty_ad.descs.join('. ')) || false
+    cleaned_ad.MLS = WeakNLP.extract_brokerage(dirty_ad.descs.join('. ')) || 'private_listing'
+    cleaned_ad.LEASE_LENGTH = WeakNLP.extract_duration(dirty_ad.descs.join('. ')) || 12
+    cleaned_ad.SELLER = dirty_ad.contact || 'Private Landlord'
+    cleaned_ad.TITLE = cleaned_ad.ADDRESS
+    cleaned_ad.DESCRIPTION = dirty_ad.descs.join('. ') || 'For Rent'
+    cleaned_ad.DATE_POSTED = moment().toISOString()
+    cleaned_ad.DATE_POSTED_UNIX = moment().unix()
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
     cleaned_ad.REFERENCE_ID = uuid.v4()
-    cleaned_ad.SOURCE = 'kijiji'
+    cleaned_ad.SOURCE = 'zumper'
     cleaned_ad.SCRAPED_AT = moment().toISOString()
     cleaned_ad.SCRAPED_AT_UNIX = moment().unix()
-    if (dirty_ad.ad_url.indexOf('room-rental-roommate') > -1) {
-      cleaned_ad.BEDS = 1
-    }
     res(cleaned_ad)
   })
   return p
-}
-
-const checkCityAddress = function(address, url) {
-  let rightAddress = address + ' Canada'
-  if (url.toLowerCase().indexOf('toronto') > -1) {
-    if (address.toLowerCase().indexOf('toronto') === -1) {
-      rightAddress = address + ', Toronto Canada'
-    }
-  }
-  if (url.toLowerCase().indexOf('waterloo') > -1) {
-    if (address.toLowerCase().indexOf('waterloo') === -1) {
-      rightAddress = address + ', Waterloo Canada'
-    }
-  }
-  return rightAddress
 }
 
 function isEmpty(obj) {
