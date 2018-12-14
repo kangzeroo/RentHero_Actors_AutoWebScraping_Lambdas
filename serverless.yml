@@ -77,6 +77,13 @@ functions:
       DEMO_ACCESS_KEY: ${file(./mock_creds/${self:provider.stage}/demo_creds.js):vars.DEMO_ACCESS_KEY}
       NODE_ENV: ${self:provider.stage}
 
+  zumper:
+    handler: handler.zumper
+    timeout: 120
+    environment:
+      DEMO_ACCESS_KEY: ${file(./mock_creds/${self:provider.stage}/demo_creds.js):vars.DEMO_ACCESS_KEY}
+      NODE_ENV: ${self:provider.stage}
+
   getListings:
     handler: handler.getListings
     timeout: 120

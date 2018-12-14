@@ -41,7 +41,7 @@ exports.elastic_search_properties = (prefs) => {
                 }
             },
             {
-              "DATE_POSTED_UNIX" : { "order" : "desc" }
+              "DATE_POSTED" : { "order" : "desc" }
             }
         ]
     }
@@ -86,6 +86,7 @@ exports.elastic_search_properties = (prefs) => {
       error: (err) => {
         console.log('OBSERVABLE ERROR')
         console.log(err)
+        rej(err)
       },
       complete: () => {
         console.log('OBSERVABLE COMPLETE')
@@ -213,6 +214,7 @@ exports.elastic_heat_map = (prefs) => {
       error: (err) => {
         console.log('OBSERVABLE ERROR')
         console.log(err)
+        rej(err)
       },
       complete: () => {
         console.log('OBSERVABLE COMPLETE')

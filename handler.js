@@ -2,6 +2,7 @@
 const kijiji = require('./fn/kijiji')
 const zolo = require('./fn/zolo')
 const condosca = require('./fn/condosca')
+const zumper = require('./fn/zumper')
 const getListings = require('./fn/getListings')
 const getListingsByRef = require('./fn/getListingsByRef')
 const getListingsByRefs = require('./fn/getListingsByRefs')
@@ -17,6 +18,10 @@ module.exports.zolo = (event, context, callback) => {
 
 module.exports.condosca = (event, context, callback) => {
   condosca(event, context, callback)
+};
+
+module.exports.zumper = (event, context, callback) => {
+  zumper(event, context, callback)
 };
 
 module.exports.getListings = (event, context, callback) => {
