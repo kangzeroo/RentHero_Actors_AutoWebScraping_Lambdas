@@ -72,3 +72,47 @@ exports.batchInsertItems = function(items){
   })
   return p
 }
+
+exports.batchDeleteItems = function(items){
+  console.log('batchDeleteItems')
+  /*
+    items = [
+      {
+        'TableName': tableName,
+        'Item': intel,
+      }
+    ]
+  */
+  const p = new Promise((res, rej) => {
+    if (items.length > 0) {
+      const params = {
+        RequestItems: {
+          [items[0].TableName]: items.map((item) => {
+            return {
+              DeleteRequest: {
+                Key: {
+                  "DATE_POSTED_UNIX": item.Item.DATE_POSTED_UNIX,
+                  "ITEM_ID": item.Item.ITEM_ID
+                }
+              }
+            }
+          })
+        }
+      }
+      console.log('----------------')
+      console.log(params.RequestItems[items[0].TableName])
+      console.log('----------------')
+      docClient.batchWriteItem(params, function(err, data) {
+        if (err){
+            console.log(JSON.stringify(err, null, 2));
+            console.log(err)
+            rej()
+        }else{
+            console.log('INTEL BATCH INSERTION SUCCESS!')
+            res()
+        }
+      })
+    }
+  })
+  return p
+}
