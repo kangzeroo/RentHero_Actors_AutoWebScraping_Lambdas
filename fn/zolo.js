@@ -7,6 +7,7 @@ const googleMapsClient = require('@google/maps').createClient({
   key: API_KEY
 })
 const WeakNLP = require('../api/nlp/weak_nlp')
+const annotateImages = require('../api/automl/automl_vision').annotateImages
 const backupImages = require('../api/s3/aws_s3').backupImages
 const insertIntel = require('../DynamoDB/general_insertions').insertIntel
 const query_dynamodb = require('../DynamoDB/general_queryable').query_dynamodb
@@ -154,12 +155,10 @@ module.exports = function(event, context, callback) {
     }
   })
   .then((backedup_images) => {
-    cleaned_ad.IMAGES = backedup_images.map(img => {
-      return {
-        url: img,
-        caption: 'no caption'
-      }
-    })
+    return annotateImages(backedup_images)
+  })
+  .then((annotated_images) => {
+    cleaned_ad.IMAGES = annotated_images
     console.log('Done the image backups!')
     return extractDetails(cleaned_ad, dirty_ad)
   })
