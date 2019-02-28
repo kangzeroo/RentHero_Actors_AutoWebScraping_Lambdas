@@ -10,6 +10,7 @@ const googleMapsClient = gmaps.createClient({
 })
 const WeakNLP = require('../api/nlp/weak_nlp')
 const uuid = require('uuid')
+const ShortUniqueId = require('short-unique-id')
 const annotateImages = require('../api/automl/automl_vision').annotateImages
 const backupImages = require('../api/s3/aws_s3').backupImages
 const insertIntel = require('../DynamoDB/general_insertions').insertIntel
@@ -74,7 +75,7 @@ module.exports = function(event, context, callback) {
       .then((Items) => {
         console.log('CHECKED IF ALREADY EXISTS...')
         console.log(Items)
-        if (Items.length === 0) {
+        if (Items.length === 0 && dirty_ad.address) {
             googleMapsClient.geocode({
               address: dirty_ad.address
             }, function(err, response) {
@@ -200,8 +201,11 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
     cleaned_ad.REFERENCE_ID = uuid.v4()
     cleaned_ad.SOURCE = 'kijiji'
+    cleaned_ad.PHONE = dirty_ad.phone || 'none'
     cleaned_ad.SCRAPED_AT = moment().toISOString()
     cleaned_ad.SCRAPED_AT_UNIX = moment().unix()
+    const uid = new ShortUniqueId()
+    cleaned_ad.SHORT_ID = uid.randomUUID(8)
     if (dirty_ad.ad_url.indexOf('room-rental-roommate') > -1) {
       cleaned_ad.BEDS = 1
     }

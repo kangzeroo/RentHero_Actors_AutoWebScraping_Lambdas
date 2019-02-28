@@ -8,6 +8,7 @@ const googleMapsClient = require('@google/maps').createClient({
 })
 const WeakNLP = require('../api/nlp/weak_nlp')
 const uuid = require('uuid')
+const ShortUniqueId = require('short-unique-id')
 const annotateImages = require('../api/automl/automl_vision').annotateImages
 const backupImages = require('../api/s3/aws_s3').backupImages
 const insertIntel = require('../DynamoDB/general_insertions').insertIntel
@@ -199,6 +200,8 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.DATE_POSTED_UNIX = moment(dirty_ad.date_posted, 'YYYY-MM-DD').unix() || moment().unix()
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
     cleaned_ad.REFERENCE_ID = uuid.v4()
+    const uid = new ShortUniqueId()
+    cleaned_ad.SHORT_ID = uid.randomUUID(8)
     cleaned_ad.SOURCE = 'condos.ca'
     cleaned_ad.SCRAPED_AT = moment().toISOString()
     cleaned_ad.SCRAPED_AT_UNIX = moment().unix()

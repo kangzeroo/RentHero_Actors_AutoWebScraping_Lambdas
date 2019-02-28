@@ -7,7 +7,7 @@ const RENTAL_LISTINGS = require('../credentials/' + process.env.NODE_ENV + '/dyn
 // NODE_ENV=development node fn/getListings.js
 module.exports = function(event, context, callback) {
 
-  console.log('------ getMeatMap() ------')
+  console.log('------ getHeatMap() ------')
   console.log('------ LAMBDA EVENT OBJECT ------')
   console.log(event)
   console.log(event.body)
@@ -16,7 +16,7 @@ module.exports = function(event, context, callback) {
   // console.log(JSON.parse(event.body))
   console.log('------ LAMBDA CONTEXT OBJECT ------')
   console.log(context)
-  
+
   // getAddressesWithinRadius(body.destinations[0].gps.lat, body.destinations[0].gps.lng, body.radius)
   //   .then((data) => {
   //     console.log('--------> getAddressesWithinRadius')

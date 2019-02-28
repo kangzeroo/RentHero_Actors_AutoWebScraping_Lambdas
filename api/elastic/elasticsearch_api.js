@@ -1,10 +1,41 @@
 const axios = require('axios')
 const Rx = require('rxjs')
+const moment = require('moment')
 const ELASTICSEARCH_URL = require(`../../credentials/${process.env.NODE_ENV}/elasticsearch_url`).ELASTICSEARCH_URL
 const ELASTICSEARCH_MAPPING = require(`../../credentials/${process.env.NODE_ENV}/elasticsearch_url`).ELASTICSEARCH_MAPPING
 
 exports.elastic_search_properties = (prefs) => {
   console.log('Hitting ', ELASTICSEARCH_URL)
+
+  const mustParams = [
+    { "range" : { "SCRAPED_AT" : { "gte" : moment().subtract(30, 'days').toISOString() } } },
+    { "range" : { "PRICE" : { "lte" : prefs.FINANCIALS.IDEAL_PER_PERSON * prefs.GROUP.CERTAIN_MEMBERS, "gte": 100 } } }
+  ]
+
+  if (prefs.GROUP.WHOLE_OR_RANDOM_AS.toLowerCase().indexOf('both') > -1) {
+    mustParams.push({ "range" : { "BEDS" : { "gte" : prefs.GROUP.CERTAIN_MEMBERS } } })
+  } else if (prefs.GROUP.WHOLE_OR_RANDOM_AS.toLowerCase().indexOf('partial') > -1) {
+    mustParams.push({ "range" : { "BEDS" : { "gte" : prefs.GROUP.CERTAIN_MEMBERS } } })
+  } else if (prefs.GROUP.WHOLE_OR_RANDOM_AS.toLowerCase().indexOf('entire') > -1) {
+    mustParams.push({ "match": { "BEDS": prefs.GROUP.CERTAIN_MEMBERS } })
+  } else {
+    mustParams.push({ "match": { "BEDS": prefs.GROUP.CERTAIN_MEMBERS } })
+  }
+
+  if (prefs.MOVEIN.LEASE_LENGTH === 12) {
+    mustParams.push({ "match": { "LEASE_LENGTH": prefs.MOVEIN.LEASE_LENGTH } })
+  } else if (prefs.MOVEIN.LEASE_LENGTH === 8) {
+    mustParams.push({ "range" : { "BEDS" : { "lte" : 12, "gte": 8 } } })
+  } else if (prefs.MOVEIN.LEASE_LENGTH === 4) {
+    mustParams.push({ "match": { "LEASE_LENGTH": prefs.MOVEIN.LEASE_LENGTH } })
+  } else {
+    mustParams.push({ "range" : { "BEDS" : { "lte" : prefs.MOVEIN.LEASE_LENGTH + 2, "gte": prefs.MOVEIN.LEASE_LENGTH - 2 } } })
+  }
+
+  if (prefs.GROUP.BATHROOMS > 0) {
+    mustParams.push({ "range" : { "BATHS" : { "lte" : prefs.GROUP.BATHROOMS + 1, "gte": prefs.GROUP.BATHROOMS - 1 } } })
+  }
+
   const p = new Promise((res, rej) => {
     const Items = []
     let query = {
@@ -12,16 +43,13 @@ exports.elastic_search_properties = (prefs) => {
       "size": 30,
       "query": {
         "bool": {
-          "must": [
-            { "match": { "BEDS": prefs.rooms.avail.ideal } },
-            { "range" : { "PRICE" : { "lte" : prefs.budget.max_per_person * prefs.rooms.avail.ideal } } }
-          ],
+          "must": mustParams,
           "filter" : {
               "geo_distance" : {
-                  "distance" : `${prefs.radius}m`,
+                  "distance" : `30000m`,
                   "GEO_POINT" : {
-                      "lat" : prefs.destinations[0].gps.lat,
-                      "lon" : prefs.destinations[0].gps.lng
+                      "lat" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[0],
+                      "lon" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[1],
                   }
               }
           }
@@ -31,8 +59,8 @@ exports.elastic_search_properties = (prefs) => {
             {
                 "_geo_distance" : {
                     "GEO_POINT" : {
-                        "lat" : prefs.destinations[0].gps.lat,
-                        "lon" : prefs.destinations[0].gps.lng
+                        "lat" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[0],
+                        "lon" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[1],
                     },
                     "order" : "asc",
                     "unit" : "m",
@@ -135,25 +163,26 @@ exports.grab_listings_by_refs = (ref_ids) => {
 
 exports.elastic_heat_map = (prefs) => {
   console.log('Hitting ', ELASTICSEARCH_URL)
+
   const p = new Promise((res, rej) => {
     const Items = []
     let query = {
       "from": 0,
       "size": 30,
-      "_source": ["GPS.lat", "GPS.lng", "BEDS", "PRICE", "REFERENCE_ID"],
+      "_source": ["GPS.lat", "GPS.lng"],
+      // "_source": ["GPS.lat", "GPS.lng", "BEDS", "PRICE", "REFERENCE_ID"],
       "query": {
         "bool": {
           "must": [
-            { "range" : { "BEDS" : { "lte" : prefs.rooms.avail.max } } },
-            { "range" : { "PRICE" : { "lte" : prefs.budget.max_per_person * prefs.rooms.avail.ideal } } }
+            { "range" : { "SCRAPED_AT" : { "gte" : moment().subtract(30, 'days').toISOString() } } },
           ],
           "filter" : {
               "geo_distance" : {
-                  "distance" : `${prefs.radius}m`,
+                  "distance" : `30000m`,
                   "GEO_POINT" : {
-                      "lat" : prefs.destinations[0].gps.lat,
-                      "lon" : prefs.destinations[0].gps.lng
-                  }
+                      "lat" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[0],
+                      "lon" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[1],
+                  },
               }
           }
         }
@@ -162,8 +191,8 @@ exports.elastic_heat_map = (prefs) => {
             {
                 "_geo_distance" : {
                     "GEO_POINT" : {
-                        "lat" : prefs.destinations[0].gps.lat,
-                        "lon" : prefs.destinations[0].gps.lng
+                        "lat" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[0],
+                        "lon" : prefs.LOCATION.DESTINATION_GEOPOINT.split(',')[1],
                     },
                     "order" : "asc",
                     "unit" : "m",

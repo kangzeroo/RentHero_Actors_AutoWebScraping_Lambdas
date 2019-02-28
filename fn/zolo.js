@@ -12,6 +12,7 @@ const backupImages = require('../api/s3/aws_s3').backupImages
 const insertIntel = require('../DynamoDB/general_insertions').insertIntel
 const query_dynamodb = require('../DynamoDB/general_queryable').query_dynamodb
 const uuid = require('uuid')
+const ShortUniqueId = require('short-unique-id')
 const RENTAL_LISTINGS = require('../credentials/' + process.env.NODE_ENV + '/dynamodb_tablenames').RENTAL_LISTINGS
 const insertAddressComponents = require('../api/rds/rds_api').insertAddressComponents
 
@@ -213,6 +214,8 @@ const extractDetails = function(cleaned_ad, dirty_ad) {
     cleaned_ad.ITEM_ID = encodeURIComponent(dirty_ad.ad_url)
     cleaned_ad.REFERENCE_ID = uuid.v4()
     cleaned_ad.SOURCE = 'zolo'
+    const uid = new ShortUniqueId()
+    cleaned_ad.SHORT_ID = uid.randomUUID(8)
     cleaned_ad.SCRAPED_AT = moment().toISOString()
     cleaned_ad.SCRAPED_AT_UNIX = moment().unix()
     res(cleaned_ad)

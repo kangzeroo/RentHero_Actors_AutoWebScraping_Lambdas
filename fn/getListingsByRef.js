@@ -30,6 +30,21 @@ module.exports = function(event, context, callback) {
       ":reference_id": body.ref_id,
     }
   }
+  if (body.short_id) {
+    params = {
+      "TableName": RENTAL_LISTINGS,
+      "KeyConditionExpression": `
+        #SHORT_ID = :short_id
+      `,
+      "IndexName": "By_Short_ID",
+      "ExpressionAttributeNames": {
+        "#SHORT_ID": "SHORT_ID"
+      },
+      "ExpressionAttributeValues": {
+        ":short_id": body.short_id,
+      }
+    }
+  }
   console.log(params)
   query_dynamodb(params)
     .then((ads) => {
